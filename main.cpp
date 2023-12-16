@@ -6,6 +6,8 @@
 
 
 typedef std::array<int, 4> DigitCombination;
+typedef std::vector<DigitCombination> CombinationList;
+
 
 struct Score {
     int right_position;
@@ -13,19 +15,12 @@ struct Score {
 
     Score() : right_position(0), wrong_position(0) {}
 
-    // Overloading the equality operator
-    bool operator==(const Score &other) const {
-        return right_position == other.right_position
-               && wrong_position == other.wrong_position;
-    }
-
     // Overloading the inequality operator
     bool operator!=(const Score &other) const {
-        return !(*this == other);
+        return right_position != other.right_position
+               || wrong_position != other.wrong_position;
     }
 };
-
-typedef std::vector<DigitCombination> CombinationList;
 
 /**
  * @brief Calculate the score for a guess against a secret code.
