@@ -60,7 +60,8 @@ Note that a `vector` is used which allows to add an arbitrary number of elements
 A 'score' comprises the number of digits on the right position and the number of digits on the wrong position. As such, to hold the score a struct `Score` can be defined with ``right_position`` and ``wrong_position`` attributes.
 
 ```c++
-struct Score {
+struct Score
+{
     int right_position;
     int wrong_position;
 };
@@ -74,7 +75,8 @@ Score() : right_position(0), wrong_position(0) {}
 To be able to determine whether one score differs from another, an inequality operator is defined.
 
 ```c++
-bool operator!=(const Score &other) const {
+bool operator!=(const Score &other) const
+{
     return right_position != other.right_position
            || wrong_position != other.wrong_position;
 }
@@ -82,19 +84,36 @@ bool operator!=(const Score &other) const {
 ## Functions
 To implement the described algorithms, a number of functions are required:
 
-* _Calculate the score_: given a 'guess' and the 'code' the score must be determined. This function can be used both to determine the score of a guess from the user or be used to filter the list of possible combinations as described in "[Code breaking algorithm](#code-breaking-algorithm)".
-* _Get the difficulty level_: ask the user to specify the difficulty level, i.e. the number of digit to choose from.
-* _Generate all combinations_: determine all the possible combinations given a difficulty level.
-* _Filter the combinations_: remove all combinations from the list that are no longer possible given the new score.
-* _Select a random combination_: randomly choose a combination from the list of possible combinations.
-* _Perform the computer move_: have the computer show a new guess and let the user enter the score.
-* _Computer player_: run the game in the mode where the computer is the player guessing the code.
-* _Human player_: run the game in the mode where the human is the player guessing the code.
+* [_Calculate the score_](#calculate-the-score)<br>Given a 'guess' and the 'code' the score must be determined. This function can be used both to determine the score of a guess from the user or be used to filter the list of possible combinations as described in "[Code breaking algorithm](#code-breaking-algorithm)".
+
+
+* [_Get the difficulty level_](#get-difficulty-level)<br> Ask the user to specify the difficulty level, i.e. the number of digit to choose from.
+
+
+* [_Generate all combinations_](#generate-all-combinations)<br>Determine all the possible combinations given a difficulty level.
+
+
+* [_Filter the combinations_](#filter-the-combinations)<br>Remove all combinations from the list that are no longer possible given the new score.
+
+
+* [_Select a random combination_](#select-a-random-combination)<br>Randomly choose a combination from the list of possible combinations.
+
+
+* [_Perform the computer move_](#perform-the-computer-move)<br>Have the computer show a new guess and let the user enter the score.
+
+
+* [_Computer player_](#computer-player)<br>Run the game in the mode where the computer is the player guessing the code.
+
+
+* [_Human player_](#human-player)<br>Run the game in the mode where the human is the player guessing the code.
 
 ### Calculate the score
 
+Given a 'guess' and the 'code' the score can be determined by calling the `calculateScore()` function. This function can be used both to determine the score of a guess from the user or be used to filter the list of possible combinations as described in "[Code breaking algorithm](#code-breaking-algorithm)".
+
 ```c++
-Score calculateScore(DigitCombination guess, DigitCombination code)
+Score calculateScore(DigitCombination guess, 
+                     DigitCombination code)
 {
     Score score;
 
@@ -102,12 +121,10 @@ Score calculateScore(DigitCombination guess, DigitCombination code)
     {
         if (guess[i] == code[i])
         {
-            // Correct digit at right position
             score.right_position++;
         }
         else
         {
-            // Check if guess digit is in code and not already counted
             for (int j = 0; j < 4; j++)
             {
                 if (guess[i] == code[j])
@@ -221,125 +238,164 @@ DigitCombination selectRandomCombination(const CombinationList& combinations)
 
 ### Perform the computer move
 
+To have the computer perform a move, the `performComputerMove()` function is defined. The function takes the list of possible combinations as its argument and returns whether the computer guessed the combination.
+
 ```c++
-Score performComputerMove(CombinationList& combinations)
+bool performComputerMove(CombinationList& combinations)
+```
+
+The first step is to choose a random combination from the list by calling the `[selectRandomCombination()](#select-a-random-combination) function.
+
+```c++
+DigitCombination guess = selectRandomCombination(combinations);
+
+```
+This guess is then shown to the user.
+```c++
+std::cout << "Computer's guess: ";
+for (int digit : guess)
 {
-    DigitCombination guess = selectRandomCombination(combinations);
-
-    // Show guess to user
-    std::cout << "Computer's guess: ";
-    for (int digit : guess)
-    {
-        std::cout << digit;
-    }
-    std::cout << "\n";
-
-    // Get user's feedback
-    Score score;
-    std::cout << "Enter number of digits in the correct position: ";
-    std::cin >> score.right_position;
-
-    if (score.right_position < 4)
-    {
-        std::cout << "Enter number of correct digits in the wrong position: ";
-        std::cin >> score.wrong_position;
-    }
-
-    // Use score to filter combinations
-    filterCombinations(combinations, guess, score);
-
-    return score;
+    std::cout << digit;
 }
+std::cout << "\n";
+```
+
+The user must first supply the number of digits in the correct position. This number is them placed in the `right_position` attribute of the `score`.
+
+```c++
+
+// Get user's feedback
+Score score;
+std::cout << "Enter number of digits in the correct position: ";
+std::cin >> score.right_position;
+```
+
+Now if the number of digits in the right position is 4 then obviously the code was guessed and the function can return without asking for the number of digits in the wrong position.
+```c++
+if ( score.right_position == 4)
+{
+    return true;
+}
+```
+
+When the code was not guessed yet, the users must supply the number of digits in the wrong position.
+
+```c++
+std::cout << "Enter number of correct digits in the wrong position: ";
+std::cin >> score.wrong_position;
+```
+
+The supplied can now be used to filter combinations by calling the [`filterCombinations()`](#filter-the-combinations) function. After this is done, the function can return with `false` to indicate that the code was not guessed yet.
+
+```c++
+filterCombinations(combinations, guess, score);
+return false;
 ```
 
 ### Computer player
+To run the game in the mode where the computer is the player guessing the code, the `computerPlayer()` function is called.
 
 ```c++
-void computerPlayer()
+void computerPlayer(CombinationList& combinations)
+```
+
+A while-loop is created that stops when the computer guessed the code.
+
+```c++
+bool codeGuessed;
+do
 {
-    int level;
-    Score score;
-    CombinationList combinations;
+    // ...
+} while (!codeGuessed);
+```
+Inside this while-loop the first step is to perform a move by calling the [`performComputerMove()`](#perform-the-computer-move) function. Since this function returns whether the computer guessed the code, the result can be used to set the `codeGuessed` loop variable.
 
-    while (true)
-    {
-        // Get difficulty level and generate all possible combinations
-        level = getDifficultyLevel();
-        combinations = generateAllCombinations(level);
+```c++
+codeGuessed = performComputerMove(combinations);
+```
 
-        do
-        {
-            // Perform a computer move and get the score
-            score = performComputerMove(combinations);
+A special situation occurs when the code was not guessed yet, but there are no more possible combinations left. This will happen when the user made an error when supplying the score. This is handled by printing the error message and exiting the function which will restart the game.
 
-            // Check if combinations list is empty due to incorrect user input
-            if (combinations.empty())
-            {
-                std::cout << "Input error detected, restarting game...\n";
-                break;
-            }
-        } while (score.right_position < 4);  // repeat until all positions are correct
-
-        // Check if combination is guessed correctly
-        if (!combinations.empty())
-        {
-            std::cout << "The computer has guessed your combination!\n";
-            break;
-        }
-    }
+```c++
+if (combinations.empty() && !codeGuessed)
+{
+    std::cout << "Input error detected, restarting game...\n";
+    return;
 }
+```
+
+When the while-loop end, the computer guessed the combination.
+```c++
+std::cout << "The computer has guessed your combination!\n";
 ```
 
 ### Human player
+To run the game in the mode where the human is the player guessing the code, the `humanPlayer()` function is called.
 
 ```c++
-void humanPlayer()
-{
-    int level;
-    Score score;
-    DigitCombination secretCode;
-
-    // Get difficulty level and generate all possible combinations
-    level = getDifficultyLevel();
-    CombinationList combinations = generateAllCombinations(level);
-
-    // Computer selects a secret combination
-    secretCode = selectRandomCombination(combinations);
-
-    do
-    {
-        // Prompt the player to enter a guess
-        DigitCombination playerGuess;
-        std::cout << "Enter your guess of four distinct digits between 0 and " << level - 1 << " without spaces: ";
-        std::string input;
-        std::cin >> input;
-
-        // Convert string characters to integers and store them in playerGuess
-        for(int i = 0; i < 4; ++i)
-        {
-            playerGuess[i] = input[i] - '0';  // Using ASCII code to convert characters to integers
-        }
-
-        // Calculate the score based on the player's guess and the secret combination
-        score = calculateScore(playerGuess, secretCode);
-
-        // Provide feedback to the player
-        std::cout << "Digits in the right position: " << score.right_position << "\n";
-        std::cout << "Correct digits in wrong position: " << score.wrong_position << "\n";
-    } while (score.right_position < 4);  // repeat until all positions are correct
-
-    // The secret code has been found
-    std::cout << "Congratulations, you have guessed the combination!\n";
-}
+void humanPlayer(const int level, CombinationList& combinations)
 ```
 
-## Main program
+The first s
+Get difficulty level and generate all possible combinations
 
 ```c++
-int main()
-{
-    std::cout << "-- Welcome to DigitMind --\n";
+auto level = getDifficultyLevel();
+auto combinations = generateAllCombinations(level);
+```
 
+Computer selects a secret combination
+
+```c++
+auto secretCode = selectRandomCombination(combinations);
+```
+
+When the while-loop ends, the user guessed the code.
+
+```c++
+Score score;
+do
+{
+    // ...
+} while (score.right_position < 4);  // repeat until all positions are correct
+
+// The secret code has been found
+std::cout << "Congratulations, you have guessed the combination!\n";
+```
+
+Inside the while-loop the player is asked to enter a new guess.
+```c++
+DigitCombination playerGuess;
+std::cout << "Enter your guess of four distinct digits between 0 and " << level - 1 << " without spaces: ";
+std::string input;
+std::cin >> input;
+```
+It is assumed that the player enters the guess as a string of 4 digits. This string is then converted to integers and stored in `playerGuess`.
+
+```c++
+for(int i = 0; i < 4; ++i)
+{
+    playerGuess[i] = input[i] - '0';  // Using ASCII code to convert characters to integers
+}
+```
+The score can now be calculated based on the player's guess and the secret combination.
+
+```c++
+score = calculateScore(playerGuess, secretCode);
+```
+The resulting score can be provided as feedback to the player.
+
+```c++
+std::cout << "Digits in the right position: " << score.right_position << "\n";
+std::cout << "Correct digits in wrong position: " << score.wrong_position << "\n";
+```
+
+## Menu
+A simple menu is created to allow the user to select between the two game modes.
+
+```c++
+int menu()
+{
     int choice;
 
     do
@@ -351,24 +407,44 @@ int main()
                   << "\n"
                   << "Enter the number of your chosen option: ";
         std::cin >> choice;
+    } while (choice>2);
+    
+    return choice;
+}
+```
 
-        switch (choice)
-        {
-            case 0:
-                exit(0);
-            case 1:
-                computerPlayer();
-                break;
-            case 2:
-                humanPlayer();
-                break;
-            default:
-                std::cout << "Invalid choice. Exiting the game.\n";
-                break;
-        }
-    } while (choice != 0);
+## Main program
 
-    return 0;
+```c++
+int choice = menu();
+
+if (choice == 0)
+{
+    exit(0);
+}
+```
+
+The first step is the user to supply the difficulty level by calling the [`getDifficultyLevel()`](#get-difficulty-level) function.
+
+```c++
+auto level = getDifficultyLevel();
+```
+This can then be used to determine the number of possible combinations by calling the [`generateAllCombinations()`](#generate-all-combinations).
+
+```c++
+auto combinations = generateAllCombinations(level);
+```
+
+With the level and combinations created, the game can start depending on the choice by calling the [`computerPlayer()`](#computer-player) or [`humanPlayer()`](#human-player) function.
+
+```c++
+if ( choice == 1)
+{
+    computerPlayer(combinations);
+}
+else if (choice == 2)
+{
+    humanPlayer(level, combinations);
 }
 ```
 
