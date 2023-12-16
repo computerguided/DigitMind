@@ -22,6 +22,13 @@ struct Score
     }
 };
 
+enum GameMode
+{
+    Quit,
+    ComputerGuesses,
+    PlayerGuesses
+};
+
 /**
  * @brief Calculate the score for a guess against a secret code.
  *
@@ -316,9 +323,15 @@ int menu()
                   << "\n"
                   << "Enter the number of your chosen option: ";
         std::cin >> choice;
-    } while (choice>2);
 
-    return choice;
+        if (choice < 0 || choice > 2)
+        {
+            std::cout << "Invalid choice! Please choose a number between 0 and 2." << std::endl;
+        }
+
+    } while (choice < 0 || choice > 2);
+
+    return static_cast<GameMode>(choice);
 }
 
 /**
@@ -335,9 +348,9 @@ int main()
 
     while (true)
     {
-        int choice = menu();
+        auto choice = menu();
 
-        if (choice == 0)
+        if (choice == GameMode::Quit)
         {
             exit(0);
         }
@@ -346,11 +359,11 @@ int main()
         auto level = getDifficultyLevel();
         auto combinations = generateAllCombinations(level);
 
-        if ( choice == 1)
+        if ( choice == GameMode::ComputerGuesses)
         {
             computerPlayer(combinations);
         }
-        else if (choice == 2)
+        else if (choice == GameMode::PlayerGuesses)
         {
             humanPlayer(level, combinations);
         }
