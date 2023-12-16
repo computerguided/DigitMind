@@ -75,7 +75,7 @@ Score() : right_position(0), wrong_position(0) {}
 To be able to determine whether one score differs from another, an inequality operator is defined.
 
 ```c++
-bool operator!=(const Score &other) const
+bool operator==(const Score &other) const
 {
     return right_position == other.right_position
            && wrong_position == other.wrong_position;
