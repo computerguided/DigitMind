@@ -72,7 +72,7 @@ When this struct is instantiated, the attributes must be initialized, which is d
 Score() : right_position(0), wrong_position(0) {}
 ```
 
-To be able to determine whether one score differs from another, an inequality operator is defined.
+To be able to determine whether one score is equal to another, an equality operator is defined.
 
 ```c++
 bool operator==(const Score &other) const
