@@ -208,7 +208,7 @@ while (it != allCombinations.end())
     // ...
 }
 ```
-Inside the while-loop it must be checked whether the combination of to which the iterator points would yield the same score. If this is the case, the combination is allowed to stay in the list.
+Inside the while-loop it must be checked (using the overloaded `==` operator as described in "[Score](#score)") whether the combination of to which the iterator points would yield the same score. If this is the case, the combination is allowed to stay in the list.
 ```c++
 if (calculateScore(guess, *it) == score)
 {
