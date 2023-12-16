@@ -17,10 +17,10 @@ struct Score
     Score() : right_position(0), wrong_position(0) {}
 
     // Overloading the inequality operator
-    bool operator!=(const Score &other) const
+    bool operator==(const Score &other) const
     {
-        return right_position != other.right_position
-               || wrong_position != other.wrong_position;
+        return right_position == other.right_position
+               && wrong_position == other.wrong_position;
     }
 };
 
@@ -35,12 +35,11 @@ struct Score
  * and the number of digits that are in the code but in the wrong position (wrong position).
  *
  * The function iterates through each digit of the guess and checks if it is in the correct
- * position or the wrong position. It keeps track of counted digits using the `digitsCounted`
- * array to avoid counting digits more than once for the wrong position.
+ * position or the wrong position.
  *
  * If a digit is in the correct position, the `right_position` score is incremented. If a digit
- * is in the code but not in the correct position and has not been counted before, the
- * `wrong_position` score is incremented and the digit is marked as counted.
+ * is in the code but not in the correct position, the `wrong_position` score is incremented
+ * and the digit is marked as counted.
  *
  * @note The function assumes that both `guess` and `code` are valid digit combinations of length 4.
  *
@@ -51,9 +50,6 @@ Score calculateScore(DigitCombination guess, DigitCombination code)
 {
     Score score;
 
-    // This array will help to avoid counting digits more than once for "wrong position"
-    std::array<bool, 4> digitsCounted = {false, false, false, false};
-
     for (int i = 0; i < 4; i++)
     {
         if (guess[i] == code[i])
@@ -63,14 +59,12 @@ Score calculateScore(DigitCombination guess, DigitCombination code)
         }
         else
         {
-            // Check if guess digit is in code and not already counted
+            // Check if guess digit is in code
             for (int j = 0; j < 4; j++)
             {
-                if (guess[i] == code[j] && guess[j] != code[j]
-                    && !digitsCounted[j])
+                if (guess[i] == code[j])
                 {
                     score.wrong_position++;
-                    digitsCounted[j] = true;
                     break;
                 }
             }
@@ -157,14 +151,13 @@ void filterCombinations(CombinationList& allCombinations, const DigitCombination
     auto it = allCombinations.begin();
     while (it != allCombinations.end())
     {
-        if (calculateScore(guess, *it) != score)
-        {
-            it = allCombinations.erase(it);  // erase returns the new iterator
-        }
-        else
+        if (calculateScore(guess, *it) == score)
         {
             ++it;
+            continue;
         }
+
+        it = allCombinations.erase(it);  // erase returns the new iterator
     }
 }
 
