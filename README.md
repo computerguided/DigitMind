@@ -244,7 +244,7 @@ To have the computer perform a move, the `performComputerMove()` function is def
 bool performComputerMove(CombinationList& combinations)
 ```
 
-The first step is to choose a random combination from the list by calling the `[selectRandomCombination()](#select-a-random-combination) function.
+The first step is to choose a random combination from the list by calling the [`selectRandomCombination()`](#select-a-random-combination) function.
 
 ```c++
 DigitCombination guess = selectRandomCombination(combinations);
