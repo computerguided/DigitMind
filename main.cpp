@@ -9,14 +9,16 @@ typedef std::array<int, 4> DigitCombination;
 typedef std::vector<DigitCombination> CombinationList;
 
 
-struct Score {
+struct Score
+{
     int right_position;
     int wrong_position;
 
     Score() : right_position(0), wrong_position(0) {}
 
     // Overloading the inequality operator
-    bool operator!=(const Score &other) const {
+    bool operator!=(const Score &other) const
+    {
         return right_position != other.right_position
                || wrong_position != other.wrong_position;
     }
@@ -45,7 +47,8 @@ struct Score {
  * @see Score
  * @see DigitCombination
  */
-Score calculateScore(DigitCombination guess, DigitCombination code) {
+Score calculateScore(DigitCombination guess, DigitCombination code)
+{
     Score score;
 
     // This array will help to avoid counting digits more than once for "wrong position"
@@ -86,19 +89,20 @@ Score calculateScore(DigitCombination guess, DigitCombination code) {
  *
  * @return The difficulty level selected by the user.
  */
-int getDifficultyLevel() {
+int getDifficultyLevel()
+{
     int level = 0;
     std::cout << "Please enter the difficulty level (from 4 to 10): ";
     std::cin >> level;
 
     // Check if the input value is in the correct range.
-    while(std::cin.fail() || level < 4 || level > 10) {
+    while(std::cin.fail() || level < 4 || level > 10)
+    {
         std::cin.clear();    // reset the error flags
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');    // ignore rest of the line
         std::cout << "Invalid input. Please enter a number between 4 and 10: ";
         std::cin >> level;
     }
-
     return level;
 }
 
@@ -112,23 +116,28 @@ int getDifficultyLevel() {
  * @param level The maximum digit value (level-1) for generating combinations.
  * @return CombinationList A vector of DigitCombinations representing all the combinations.
  */
-CombinationList generateAllCombinations(int level) {
+CombinationList generateAllCombinations(int level)
+{
     CombinationList allCombinations;
     DigitCombination combination;
 
     // Generate combinations from '0123' to 'level-1 level-1 level-1 level-1'
-    for (int i = 0; i < level; i++) {
-        for (int j = 0; j < level; j++) {
-            for (int k = 0; k < level; k++) {
-                for (int l = 0; l < level; l++) {
-                    if (i != j && i != k && i != l && j != k && j != l && k != l) {
+    for (int i = 0; i < level; i++)
+    {
+        for (int j = 0; j < level; j++)
+        {
+            for (int k = 0; k < level; k++)
+            {
+                for (int l = 0; l < level; l++)
+                {
+                    if (i != j && i != k && i != l && j != k && j != l && k != l)
+                    {
                         allCombinations.push_back(DigitCombination{i, j, k, l});
                     }
                 }
             }
         }
     }
-
     return allCombinations;
 }
 
@@ -142,13 +151,18 @@ CombinationList generateAllCombinations(int level) {
  * @param guess The guess combination.
  * @param score The score to compare against.
  */
-void filterCombinations(CombinationList& allCombinations, const DigitCombination& guess, const Score& score) {
+void filterCombinations(CombinationList& allCombinations, const DigitCombination& guess, const Score& score)
+{
     // Iterate over list of combinations and remove those that don't produce the same score
     auto it = allCombinations.begin();
-    while (it != allCombinations.end()) {
-        if (calculateScore(guess, *it) != score) {
+    while (it != allCombinations.end())
+    {
+        if (calculateScore(guess, *it) != score)
+        {
             it = allCombinations.erase(it);  // erase returns the new iterator
-        } else {
+        }
+        else
+        {
             ++it;
         }
     }
@@ -160,7 +174,8 @@ void filterCombinations(CombinationList& allCombinations, const DigitCombination
  * @param combinations The list of combinations to select from.
  * @return The randomly selected combination.
  */
-DigitCombination selectRandomCombination(const CombinationList& combinations) {
+DigitCombination selectRandomCombination(const CombinationList& combinations)
+{
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<CombinationList::size_type> dis(0, combinations.size() - 1);
@@ -179,13 +194,14 @@ DigitCombination selectRandomCombination(const CombinationList& combinations) {
  * @param combinations The list of combinations to choose from.
  * @return The score obtained from the user's feedback.
  */
-Score performComputerMove(CombinationList& combinations) {
-
+Score performComputerMove(CombinationList& combinations)
+{
     DigitCombination guess = selectRandomCombination(combinations);
 
     // Show guess to user
     std::cout << "Computer's guess: ";
-    for (int digit : guess) {
+    for (int digit : guess)
+    {
         std::cout << digit;
     }
     std::cout << "\n";
@@ -195,7 +211,8 @@ Score performComputerMove(CombinationList& combinations) {
     std::cout << "Enter number of digits in the correct position: ";
     std::cin >> score.right_position;
 
-    if (score.right_position < 4) {
+    if (score.right_position < 4)
+    {
         std::cout << "Enter number of correct digits in the wrong position: ";
         std::cin >> score.wrong_position;
     }
@@ -213,29 +230,34 @@ Score performComputerMove(CombinationList& combinations) {
  * receiving feedback on the correctness of the guess. The computer will continue to guess until
  * it correctly guesses the combination or the user input leads to an empty list of combinations.
  */
-void computerPlayer() {
+void computerPlayer()
+{
     int level;
     Score score;
     CombinationList combinations;
 
-    while (true) {
+    while (true)
+    {
         // Get difficulty level and generate all possible combinations
         level = getDifficultyLevel();
         combinations = generateAllCombinations(level);
 
-        do {
+        do
+        {
             // Perform a computer move and get the score
             score = performComputerMove(combinations);
 
             // Check if combinations list is empty due to incorrect user input
-            if (combinations.empty()) {
+            if (combinations.empty())
+            {
                 std::cout << "Input error detected, restarting game...\n";
                 break;
             }
         } while (score.right_position < 4);  // repeat until all positions are correct
 
         // Check if combination is guessed correctly
-        if (!combinations.empty()) {
+        if (!combinations.empty())
+        {
             std::cout << "The computer has guessed your combination!\n";
             break;
         }
@@ -250,7 +272,8 @@ void computerPlayer() {
  * on the correctness of the guess. The player will continue to guess until
  * the combination is guessed correctly.
  */
-void humanPlayer() {
+void humanPlayer()
+{
     int level;
     Score score;
     DigitCombination secretCode;
@@ -262,7 +285,8 @@ void humanPlayer() {
     // Computer selects a secret combination
     secretCode = selectRandomCombination(combinations);
 
-    do {
+    do
+    {
         // Prompt the player to enter a guess
         DigitCombination playerGuess;
         std::cout << "Enter your guess of four distinct digits between 0 and " << level - 1 << " without spaces: ";
@@ -270,7 +294,8 @@ void humanPlayer() {
         std::cin >> input;
 
         // Convert string characters to integers and store them in playerGuess
-        for(int i = 0; i < 4; ++i) {
+        for(int i = 0; i < 4; ++i)
+        {
             playerGuess[i] = input[i] - '0';  // Using ASCII code to convert characters to integers
         }
 
@@ -295,7 +320,8 @@ void humanPlayer() {
  * 2. User guesses the combination the computer has selected
  * After the user makes a choice, the corresponding game mode function is called until the user chooses to quit.
  */
-int main() {
+int main()
+{
     std::cout << "-- Welcome to DigitMind --\n";
 
     int choice;
