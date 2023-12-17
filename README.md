@@ -31,7 +31,7 @@ To enable a computer to guess a code based on the score, the first step is to cr
 
 For example: when the difficulty level is 10, then there are 10 x 9 x 8 x 7 = 5040 possible combinations.
 
-At the start, simply one combination is chosen randomly from this list. When the score is supplied for this guess, all those combinations are removed that would not give the same score ad these can never be the combination to guess.
+At the start, simply one combination is chosen randomly from this list. When the score is supplied for this guess, all those combinations are removed that would not give the same score as these can never be the combination to guess.
 
 This process is repeated resulting eventually in the code being 'guessed'.
 
