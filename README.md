@@ -168,19 +168,19 @@ int getDifficultyLevel()
 The user is asked to enter the difficulty level. If this was not done correctly, the request is repeated.
 
 ```c++
-    int level = 0;
-    std::cout << "Please enter the difficulty level (from 4 to 10): ";
-    std::cin >> level;
+int level = 0;
+std::cout << "Please enter the difficulty level (from 4 to 10): ";
+std::cin >> level;
 
-    // Check if the input value is in the correct range.
-    while(std::cin.fail() || level < 4 || level > 10)
-    {
-        std::cin.clear();    // reset the error flags
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');    // ignore rest of the line
-        std::cout << "Invalid input. Please enter a number between 4 and 10: ";
-        std::cin >> level;
-    }
-    return level;
+// Check if the input value is in the correct range.
+while(std::cin.fail() || level < 4 || level > 10)
+{
+    std::cin.clear();    // reset the error flags
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');    // ignore rest of the line
+    std::cout << "Invalid input. Please enter a number between 4 and 10: ";
+    std::cin >> level;
+}
+return level;
 ```
 
 ### Generate all combinations
