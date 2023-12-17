@@ -130,7 +130,7 @@ Given a 'guess' and the 'code' the score can be determined by calling the `calcu
 Score calculateScore(DigitCombination guess, 
                      DigitCombination code)
 ```
-                     
+The score that will be returned will be stored in a local variable.                     
 ```c++
 Score score;
 ```
