@@ -14,7 +14,7 @@ struct Score
 
     Score() : right_position(0), wrong_position(0) {}
 
-    // Overloading the inequality operator
+    // Overloading the equality operator
     bool operator==(const Score &other) const
     {
         return right_position == other.right_position
@@ -230,12 +230,18 @@ bool performComputerMove(CombinationList& combinations)
     return false;
 }
 
+
 /**
- * @brief Plays the game with the computer as the guesser.
+ * @brief Executes the computer player's turn in the game.
  *
- * This function allows the computer to play the game by guessing the user's combination and
- * receiving feedback on the correctness of the guess. The computer will continue to guess until
- * it correctly guesses the combination or the user input leads to an empty list of combinations.
+ * This function performs the computer player's move in the game by selecting a random combination
+ * from the provided list of combinations. It then displays the selected combination to the user
+ * and waits for the user's feedback in terms of the number of digits in the correct position
+ * and the number of correct digits in the wrong position. The obtained score is used to filter
+ * the list of combinations by removing those combinations that do not produce the same score as
+ * the guessed combination. The process continues until the code is guessed correctly.
+ *
+ * @param combinations The list of combinations to choose from.
  */
 void computerPlayer(CombinationList& combinations)
 {
@@ -256,13 +262,18 @@ void computerPlayer(CombinationList& combinations)
     std::cout << "The computer has guessed your combination!\n";
 }
 
+
 /**
- * @brief Computer selects a random combination and the human player guesses that combination.
+ * @brief Allows a human player to guess a secret combination.
  *
- * This function allows the human player to play the game by guessing the combination
- * that the computer generates. The player then receives feedback
- * on the correctness of the guess. The player will continue to guess until
- * the combination is guessed correctly.
+ * This function prompts the player to enter a guess and provides feedback
+ * based on the correctness of the guess. The function continues until the
+ * player guesses the correct combination.
+ *
+ * @param level The maximum digit value for the combination (0 to level-1).
+ * @param combinations The list of combinations to select from.
+ *
+ * @see CombinationList
  */
 void humanPlayer(const int level, CombinationList& combinations)
 {
