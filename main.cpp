@@ -230,7 +230,6 @@ bool performComputerMove(CombinationList& combinations)
     return false;
 }
 
-
 /**
  * @brief Executes the computer player's turn in the game.
  *
@@ -261,7 +260,6 @@ void computerPlayer(CombinationList& combinations)
 
     std::cout << "The computer has guessed your combination!\n";
 }
-
 
 /**
  * @brief Allows a human player to guess a secret combination.
@@ -321,7 +319,7 @@ void humanPlayer(const int level, CombinationList& combinations)
  *
  * @return The user's chosen option.
  */
-int menu()
+GameMode menu()
 {
     int choice;
 
