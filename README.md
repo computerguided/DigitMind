@@ -271,7 +271,7 @@ First, a random number generator must be initialized by calling the [`std::rando
 std::random_device rd;
 ```
 
-A Mersenne Twister random number generator of the typ [`std::mt19937`](https://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine) is initialized with the seed from the random device. This generator produces high-quality random numbers and is commonly used in simulations and other applications requiring randomization.
+A Mersenne Twister random number generator of the type [`std::mt19937`](https://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine) is initialized with the seed from the random device. This generator produces high-quality random numbers and is commonly used in simulations and other applications requiring randomization.
 
 ```c++
 std::mt19937 gen(rd());
@@ -389,15 +389,14 @@ To run the game in the mode where the human is the player guessing the code, the
 void humanPlayer(const int level, CombinationList& combinations)
 ```
 
-The first s
-Get difficulty level and generate all possible combinations
+To be able to select a secret random combination, the first step is to get the difficulty level from the user by calling the [`getDifficultyLevel()`](#get-difficulty-level) function and use that to generate all possible combinations by calling the [`generateAllCombinations()`](#generate-all-combinations) function.
 
 ```c++
 auto level = getDifficultyLevel();
 auto combinations = generateAllCombinations(level);
 ```
 
-Computer selects a secret combination
+The computer then selects a secret combination by calling the [`selectRandomCombination()`](#select-a-random-combination) function.
 
 ```c++
 auto secretCode = selectRandomCombination(combinations);
