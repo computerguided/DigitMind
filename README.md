@@ -158,6 +158,8 @@ for (int i = 0; i < 4; i++)
 }
 ```
 
+Note that this implementation assumes that a combination contains 4 distinct digits.
+
 ### Get difficulty level
 To ask the user for the difficulty level, the `getDifficultyLevel()` function is called.
 
@@ -257,14 +259,34 @@ it = allCombinations.erase(it);
 
 ### Select a random combination
 
+To randomly choose a combination from the list of possible combinations, the `selectRandomCombination()` function can be called.
+
 ```c++
 DigitCombination selectRandomCombination(const CombinationList& combinations)
-{
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<CombinationList::size_type> dis(0, combinations.size() - 1);
-    return combinations[dis(gen)];
-}
+```
+
+First, a random number generator must be initialized by calling the [`std::random_device`](https://en.cppreference.com/w/cpp/numeric/random/random_device).
+
+```c++
+std::random_device rd;
+```
+
+A Mersenne Twister random number generator of the typ [`std::mt19937`](https://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine) is initialized with the seed from the random device. This generator produces high-quality random numbers and is commonly used in simulations and other applications requiring randomization.
+
+```c++
+std::mt19937 gen(rd());
+```
+
+Next a uniform integer distribution `dis` is created ranging from `0` to `combinations.size() - 1`. The type `CombinationList::size_type` ensures that the distribution produces integers of the same type as the size of the combinations list. This is important for indexing into the list without type mismatches.
+
+```c++
+std::uniform_int_distribution<CombinationList::size_type> dis(0, combinations.size() - 1);
+```
+
+Finally, the function returns a randomly selected element from the combinations list. The `dis(gen)` call generates a random integer within the specified range, and this integer is used as the index to access an element in `combinations`.
+
+```c++
+return combinations[dis(gen)];
 ```
 
 ### Perform the computer move
