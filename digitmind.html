@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DigitMind Game</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            background-color: #ffffff;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #343a40;
+        }
+
+        .menu, .difficulty, .game {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .computer-guess {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .feedback, .guess-input {
+            margin-top: 10px;
+        }
+
+        .feedback label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .feedback input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .guess-input input {
+            width: calc(100% - 110px);
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .log {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .log p {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+
+        .menu button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            background-color: #007bff;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .menu button:hover {
+            background-color: #0056b3;
+        }
+
+        #startGame {
+            background-color: #28a745;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        #startGame:hover {
+            background-color: #218838;
+        }
+
+        .play-again-button {
+            margin-top: 20px;
+            background-color: #17a2b8;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .play-again-button:hover {
+            background-color: #117a8b;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Welcome to DigitMind</h1>
+        <div class="menu">
+            <p>Choose game mode:</p>
+            <button id="mode1">1. Computer guesses your combination</button>
+            <button id="mode2">2. You guess the combination the computer has selected</button>
+            <button id="mode0">0. Quit</button>
+        </div>
+        <div class="difficulty hidden">
+            <p>Please enter the difficulty level (from 4 to 10):</p>
+            <input type="number" id="difficultyLevel" min="4" max="10" value="4">
+            <button id="startGame">Start Game</button>
+        </div>
+        <div class="game hidden">
+            <!-- Game interface will be dynamically generated here -->
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code
+
+        // Get references to DOM elements
+        const mode0Btn = document.getElementById('mode0');
+        const mode1Btn = document.getElementById('mode1');
+        const mode2Btn = document.getElementById('mode2');
+        const difficultyDiv = document.querySelector('.difficulty');
+        const startGameBtn = document.getElementById('startGame');
+        const gameDiv = document.querySelector('.game');
+        const difficultyInput = document.getElementById('difficultyLevel');
+        const menuDiv = document.querySelector('.menu');
+
+        let gameMode = null; // 1 or 2
+        let level = 4; // Difficulty level
+        let combinations = [];
+        let secretCode = [];
+        let allCombinations = [];
+        let gameOver = false;
+
+        // Event listeners for menu buttons
+        mode0Btn.addEventListener('click', function() {
+            // Quit the game
+            alert('Thank you for playing DigitMind!');
+            location.reload();
+        });
+
+        mode1Btn.addEventListener('click', function() {
+            // Computer guesses user's combination
+            gameMode = 1;
+            menuDiv.classList.add('hidden');
+            difficultyDiv.classList.remove('hidden');
+        });
+
+        mode2Btn.addEventListener('click', function() {
+            // User guesses computer's combination
+            gameMode = 2;
+            menuDiv.classList.add('hidden');
+            difficultyDiv.classList.remove('hidden');
+        });
+
+        startGameBtn.addEventListener('click', function() {
+            // Start the game with the selected difficulty level
+            level = parseInt(difficultyInput.value);
+            if (isNaN(level) || level < 4 || level > 10) {
+                alert('Invalid input. Please enter a number between 4 and 10.');
+                return;
+            }
+            difficultyDiv.classList.add('hidden');
+            gameDiv.classList.remove('hidden');
+            startGame();
+        });
+
+        // Function to start the game
+        function startGame() {
+            // Generate all combinations
+            allCombinations = generateAllCombinations(level);
+            combinations = allCombinations.slice(); // Make a copy
+            gameOver = false;
+            if (gameMode === 1) {
+                // Computer guesses user's combination
+                computerPlayer();
+            } else if (gameMode === 2) {
+                // User guesses computer's combination
+                humanPlayer();
+            }
+        }
+
+        // Function to generate all possible combinations
+        function generateAllCombinations(level) {
+            let allCombinations = [];
+            for (let i = 0; i < level; i++) {
+                for (let j = 0; j < level; j++) {
+                    for (let k = 0; k < level; k++) {
+                        for (let l = 0; l < level; l++) {
+                            if (i !== j && i !== k && i !== l && j !== k && j !== l && k !== l) {
+                                allCombinations.push([i, j, k, l]);
+                            }
+                        }
+                    }
+                }
+            }
+            return allCombinations;
+        }
+
+        // Function to calculate the score
+        function calculateScore(guess, code) {
+            let score = {
+                right_position: 0,
+                wrong_position: 0
+            };
+
+            for (let i = 0; i < 4; i++) {
+                if (guess[i] === code[i]) {
+                    score.right_position++;
+                } else if (code.includes(guess[i])) {
+                    score.wrong_position++;
+                }
+            }
+            return score;
+        }
+
+        // Function to filter combinations
+        function filterCombinations(combinations, guess, score) {
+            for (let i = combinations.length - 1; i >= 0; i--) {
+                let combination = combinations[i];
+                let s = calculateScore(guess, combination);
+                if (s.right_position !== score.right_position || s.wrong_position !== score.wrong_position) {
+                    combinations.splice(i, 1);
+                }
+            }
+        }
+
+        // Function to select a random combination
+        function selectRandomCombination(combinations) {
+            let index = Math.floor(Math.random() * combinations.length);
+            return combinations[index];
+        }
+
+        // Function for the computer to guess the user's combination
+        function computerPlayer() {
+            // Set up the game interface
+            gameDiv.innerHTML = '';
+            let computerGuessDiv = document.createElement('div');
+            computerGuessDiv.id = 'computerGuessDiv';
+            computerGuessDiv.className = 'computer-guess';
+
+            let feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'feedback';
+
+            let rightPositionLabel = document.createElement('label');
+            rightPositionLabel.textContent = 'Enter number of digits in the correct position: ';
+            let rightPositionInput = document.createElement('input');
+            rightPositionInput.type = 'number';
+            rightPositionInput.min = 0;
+            rightPositionInput.max = 4;
+            rightPositionInput.value = 0;
+
+            let wrongPositionLabel = document.createElement('label');
+            wrongPositionLabel.textContent = 'Enter number of correct digits in the wrong position: ';
+            let wrongPositionInput = document.createElement('input');
+            wrongPositionInput.type = 'number';
+            wrongPositionInput.min = 0;
+            wrongPositionInput.max = 4;
+            wrongPositionInput.value = 0;
+
+            let submitFeedbackBtn = document.createElement('button');
+            submitFeedbackBtn.textContent = 'Submit Feedback';
+
+            let logDiv = document.createElement('div');
+            logDiv.className = 'log';
+            logDiv.id = 'logDiv';
+
+            feedbackDiv.appendChild(rightPositionLabel);
+            feedbackDiv.appendChild(rightPositionInput);
+            feedbackDiv.appendChild(wrongPositionLabel);
+            feedbackDiv.appendChild(wrongPositionInput);
+            feedbackDiv.appendChild(submitFeedbackBtn);
+
+            gameDiv.appendChild(computerGuessDiv);
+            gameDiv.appendChild(feedbackDiv);
+            gameDiv.appendChild(logDiv);
+
+            let guess = null;
+
+            function performComputerMove() {
+                if (combinations.length === 0) {
+                    alert('Input error detected, restarting game...');
+                    resetGame();
+                    return;
+                }
+                guess = selectRandomCombination(combinations);
+                // Display computer's guess
+                computerGuessDiv.textContent = 'Computer\'s guess: ' + guess.join('');
+                rightPositionInput.value = 0;
+                wrongPositionInput.value = 0;
+            }
+
+            submitFeedbackBtn.addEventListener('click', function() {
+                if (gameOver) return;
+
+                let rightPosition = parseInt(rightPositionInput.value);
+                let wrongPosition = parseInt(wrongPositionInput.value);
+
+                if (isNaN(rightPosition) || isNaN(wrongPosition) || rightPosition < 0 || wrongPosition < 0 || rightPosition + wrongPosition > 4) {
+                    alert('Invalid input. Please enter valid numbers.');
+                    return;
+                }
+
+                let score = {
+                    right_position: rightPosition,
+                    wrong_position: wrongPosition
+                };
+
+                // Log the feedback
+                let logEntry = document.createElement('p');
+                logEntry.textContent = 'Guess: ' + guess.join('') + ' | Correct position: ' + rightPosition + ' | Correct digit, wrong position: ' + wrongPosition;
+                logDiv.appendChild(logEntry);
+
+                if (rightPosition === 4) {
+                    alert('The computer has guessed your combination!');
+                    gameOver = true;
+
+                    rightPositionInput.disabled = true;
+                    wrongPositionInput.disabled = true;
+                    submitFeedbackBtn.disabled = true;
+
+                    let playAgainBtn = document.createElement('button');
+                    playAgainBtn.textContent = 'Play Again';
+                    playAgainBtn.className = 'play-again-button';
+                    playAgainBtn.addEventListener('click', function() {
+                        resetGame();
+                    });
+                    gameDiv.appendChild(playAgainBtn);
+                    return;
+                }
+
+                filterCombinations(combinations, guess, score);
+
+                performComputerMove();
+            });
+
+            performComputerMove();
+        }
+
+        // Function for the user to guess the computer's combination
+        function humanPlayer() {
+            // Computer selects a secret code
+            secretCode = selectRandomCombination(combinations);
+
+            // Set up the game interface
+            gameDiv.innerHTML = '';
+
+            let instructionDiv = document.createElement('div');
+            instructionDiv.textContent = 'Enter your guess (4 distinct digits between 0 and ' + (level - 1) + '):';
+
+            let guessInput = document.createElement('input');
+            guessInput.type = 'text';
+            guessInput.maxLength = 4;
+            guessInput.className = 'guess-input';
+
+            let submitGuessBtn = document.createElement('button');
+            submitGuessBtn.textContent = 'Submit Guess';
+
+            let feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'feedback';
+
+            let logDiv = document.createElement('div');
+            logDiv.className = 'log';
+            logDiv.id = 'logDiv';
+
+            gameDiv.appendChild(instructionDiv);
+            gameDiv.appendChild(guessInput);
+            gameDiv.appendChild(submitGuessBtn);
+            gameDiv.appendChild(feedbackDiv);
+            gameDiv.appendChild(logDiv);
+
+            submitGuessBtn.addEventListener('click', function() {
+                if (gameOver) return;
+
+                let input = guessInput.value;
+                if (input.length !== 4) {
+                    alert('Please enter a 4-digit number.');
+                    return;
+                }
+                let playerGuess = input.split('').map(Number);
+                if (playerGuess.some(isNaN)) {
+                    alert('Please enter only digits.');
+                    return;
+                }
+                if (new Set(playerGuess).size !== 4) {
+                    alert('Digits must be distinct.');
+                    return;
+                }
+                if (playerGuess.some(d => d < 0 || d >= level)) {
+                    alert('Digits must be between 0 and ' + (level - 1) + '.');
+                    return;
+                }
+
+                let score = calculateScore(playerGuess, secretCode);
+
+                // Provide feedback to the player
+                feedbackDiv.textContent = 'Digits in the right position: ' + score.right_position + ', Correct digits in wrong position: ' + score.wrong_position;
+
+                // Log the guess and feedback
+                let logEntry = document.createElement('p');
+                logEntry.textContent = 'Guess: ' + playerGuess.join('') + ' | Correct position: ' + score.right_position + ' | Correct digit, wrong position: ' + score.wrong_position;
+                logDiv.appendChild(logEntry);
+
+                if (score.right_position === 4) {
+                    alert('Congratulations, you have guessed the combination!');
+                    gameOver = true;
+
+                    guessInput.disabled = true;
+                    submitGuessBtn.disabled = true;
+
+                    let playAgainBtn = document.createElement('button');
+                    playAgainBtn.textContent = 'Play Again';
+                    playAgainBtn.className = 'play-again-button';
+                    playAgainBtn.addEventListener('click', function() {
+                        resetGame();
+                    });
+                    gameDiv.appendChild(playAgainBtn);
+                    return;
+                }
+
+                guessInput.value = '';
+            });
+        }
+
+        // Function to reset the game
+        function resetGame() {
+            // Reset game variables
+            gameMode = null;
+            level = 4;
+            combinations = [];
+            secretCode = [];
+            allCombinations = [];
+            gameOver = false;
+
+            // Show the menu
+            menuDiv.classList.remove('hidden');
+            gameDiv.classList.add('hidden');
+            gameDiv.innerHTML = '';
+            difficultyDiv.classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>
