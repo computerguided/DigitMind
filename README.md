@@ -26,6 +26,8 @@ Using the scores, a player has to guess the code. This will be quite a challenge
 
 An algorithm can be implemented that enables the computer to become a codebreaker and to give the score when a human plays the role of codebreaker.
 
+**Click [here](https://htmlpreview.github.io/?https://raw.githubusercontent.com/computerguided/DigitMind/refs/heads/main/digitmind.html) to play a version in your browser.**
+
 ## Code breaking algorithm
 To enable a computer to guess a code based on the score, the first step is to create a list with all possible combinations, given the difficulty level, i.e. the size of the set of digits.
 
