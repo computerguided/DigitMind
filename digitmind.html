@@ -1,136 +1,375 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>DigitMind Game</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #e9ecef;
+        /* CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
+        /* Root Variables for Consistent Styling */
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #50e3c2;
+            --background-color: #f5f7fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --button-hover: #357ab8;
+            --input-border: #d1d5db;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --font-family: 'Roboto', sans-serif;
+            --selected-button-color: #f39c12;
+            --selected-button-hover: #d68910;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Container Styling */
         .container {
             max-width: 600px;
-            background-color: #ffffff;
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            animation: fadeIn 0.5s ease-in-out;
         }
-        
+
+        /* Header Styling */
         h1 {
             text-align: center;
-            color: #343a40;
-        }
-
-        .menu, .difficulty, .game {
-            margin-top: 20px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .computer-guess {
-            font-size: 24px;
-            font-weight: bold;
+            color: var(--primary-color);
             margin-bottom: 20px;
+            font-weight: 700;
         }
 
-        .feedback, .guess-input {
-            margin-top: 10px;
+        /* Menu Section */
+        .menu, .difficulty, .game {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .feedback label {
-            display: block;
-            margin-bottom: 5px;
+        /* Toggle Switch Styling */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
         }
 
-        .feedback input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
+        .toggle-switch label {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
         }
 
-        .guess-input input {
-            width: calc(100% - 110px);
-            padding: 8px;
-            margin-right: 10px;
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
 
-        button {
-            padding: 10px 20px;
+        .slider {
+            position: absolute;
             cursor: pointer;
+            background-color: var(--primary-color);
+            border-radius: 34px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: background-color 0.3s;
         }
 
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--secondary-color);
+        }
+
+        input:checked + .slider::before {
+            transform: translateX(26px);
+        }
+
+        /* Toggle Labels */
+        .toggle-option {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* Buttons Styling */
+        .menu button, #startGame, .play-again-button, .difficulty button, .position-buttons button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .menu button {
+            background-color: var(--primary-color);
+        }
+
+        .menu button:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        #startGame {
+            background-color: var(--secondary-color);
+        }
+
+        #startGame:hover {
+            background-color: #38c9ab;
+            transform: translateY(-2px);
+        }
+
+        .play-again-button {
+            background-color: #f39c12;
+        }
+
+        .play-again-button:hover {
+            background-color: var(--selected-button-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Difficulty Buttons Styling */
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: nowrap;
+        }
+
+        .difficulty-buttons button {
+            background-color: var(--primary-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-size: 16px;
+        }
+
+        .difficulty-buttons button:hover {
+            background-color: var(--button-hover);
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        .difficulty-buttons button.selected {
+            background-color: var(--selected-button-color);
+        }
+
+        .difficulty-buttons button.selected:hover {
+            background-color: var(--selected-button-hover);
+        }
+
+        /* Feedback Section */
+        .feedback {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Position Container Styling */
+        .position-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .position-container label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .position-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .position-buttons button {
+            background-color: var(--primary-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .position-buttons button:hover {
+            background-color: var(--button-hover);
+            transform: scale(1.05);
+        }
+
+        .position-buttons button.selected {
+            background-color: var(--selected-button-color);
+        }
+
+        .position-buttons button.selected:hover {
+            background-color: var(--selected-button-hover);
+        }
+
+        /* Input Fields Styling (If Any Remaining) */
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px var(--primary-color);
+            outline: none;
+        }
+
+        /* Computer Guess Styling */
+        .computer-guess {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        /* Log Styling */
         .log {
             margin-top: 20px;
             max-height: 200px;
             overflow-y: auto;
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
+            background-color: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            box-shadow: inset 0 2px 4px var(--shadow-color);
         }
 
         .log p {
-            margin: 5px 0;
-            font-family: monospace;
+            margin-bottom: 8px;
         }
 
-        .menu button {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            background-color: #007bff;
-            border: none;
-            color: #ffffff;
-            font-size: 16px;
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .menu button, #startGame, .play-again-button, .difficulty-buttons button, .position-buttons button {
+                font-size: 14px;
+                padding: 10px 16px;
+                width: 40px;
+                height: 40px;
+            }
+
+            input[type="number"], input[type="text"] {
+                font-size: 14px;
+            }
+
+            .computer-guess {
+                font-size: 20px;
+            }
+
+            .log {
+                font-size: 13px;
+            }
         }
 
-        .menu button:hover {
-            background-color: #0056b3;
+        /* Fade-in Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        #startGame {
-            background-color: #28a745;
-            border: none;
-            color: #ffffff;
-            font-size: 16px;
-        }
-
-        #startGame:hover {
-            background-color: #218838;
-        }
-
-        .play-again-button {
-            margin-top: 20px;
-            background-color: #17a2b8;
-            border: none;
-            color: #ffffff;
-            font-size: 16px;
-        }
-
-        .play-again-button:hover {
-            background-color: #117a8b;
-        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Welcome to DigitMind</h1>
+        <h1>DigitMind</h1>
         <div class="menu">
-            <p>Choose game mode:</p>
-            <button id="mode1">1. Computer guesses your combination</button>
-            <button id="mode2">2. You guess the combination the computer has selected</button>
-            <button id="mode0">0. Quit</button>
+            <p>Select Game Mode:</p>
+            <!-- Toggle Switch -->
+            <div class="toggle-switch">
+                <span class="toggle-option">Computer Guesses</span>
+                <label>
+                    <input type="checkbox" id="gameModeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-option">You Guess</span>
+            </div>
+            <!-- Start Game Button -->
+            <button id="startGame">Start Game</button>
+            <!-- Quit Button -->
+            <button id="mode0">Quit</button>
         </div>
         <div class="difficulty hidden">
-            <p>Please enter the difficulty level (from 4 to 10):</p>
-            <input type="number" id="difficultyLevel" min="4" max="10" value="4">
-            <button id="startGame">Start Game</button>
+            <p>Select Difficulty Level:</p>
+            <div class="difficulty-buttons">
+                <!-- Buttons from 1 to 10 -->
+                <button data-level="1">1</button>
+                <button data-level="2">2</button>
+                <button data-level="3">3</button>
+                <button data-level="4">4</button>
+                <button data-level="5">5</button>
+                <button data-level="6">6</button>
+                <button data-level="7">7</button>
+                <button data-level="8">8</button>
+                <button data-level="9">9</button>
+                <button data-level="10">10</button>
+            </div>
         </div>
         <div class="game hidden">
             <!-- Game interface will be dynamically generated here -->
@@ -142,52 +381,52 @@
 
         // Get references to DOM elements
         const mode0Btn = document.getElementById('mode0');
-        const mode1Btn = document.getElementById('mode1');
-        const mode2Btn = document.getElementById('mode2');
-        const difficultyDiv = document.querySelector('.difficulty');
+        const gameModeToggle = document.getElementById('gameModeToggle');
         const startGameBtn = document.getElementById('startGame');
+        const difficultyDiv = document.querySelector('.difficulty');
         const gameDiv = document.querySelector('.game');
-        const difficultyInput = document.getElementById('difficultyLevel');
         const menuDiv = document.querySelector('.menu');
+        const difficultyButtons = document.querySelectorAll('.difficulty-buttons button');
 
-        let gameMode = null; // 1 or 2
+        let gameMode = gameModeToggle.checked ? 2 : 1; // Set initial game mode based on the toggle state
         let level = 4; // Difficulty level
         let combinations = [];
         let secretCode = [];
         let allCombinations = [];
         let gameOver = false;
 
-        // Event listeners for menu buttons
+        // Event listener for Quit button
         mode0Btn.addEventListener('click', function() {
             // Quit the game
             alert('Thank you for playing DigitMind!');
             location.reload();
         });
 
-        mode1Btn.addEventListener('click', function() {
-            // Computer guesses user's combination
-            gameMode = 1;
-            menuDiv.classList.add('hidden');
-            difficultyDiv.classList.remove('hidden');
+        // Event listener for Game Mode Toggle
+        gameModeToggle.addEventListener('change', function() {
+            gameMode = this.checked ? 2 : 1; // Update game mode based on the toggle
         });
 
-        mode2Btn.addEventListener('click', function() {
-            // User guesses computer's combination
-            gameMode = 2;
-            menuDiv.classList.add('hidden');
-            difficultyDiv.classList.remove('hidden');
-        });
-
+        // Event listener for Start Game button
         startGameBtn.addEventListener('click', function() {
-            // Start the game with the selected difficulty level
-            level = parseInt(difficultyInput.value);
-            if (isNaN(level) || level < 4 || level > 10) {
-                alert('Invalid input. Please enter a number between 4 and 10.');
-                return;
-            }
-            difficultyDiv.classList.add('hidden');
-            gameDiv.classList.remove('hidden');
-            startGame();
+            menuDiv.classList.add('hidden');
+            difficultyDiv.classList.remove('hidden');
+        });
+
+        // Event listeners for difficulty level buttons
+        difficultyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove 'selected' class from all buttons
+                difficultyButtons.forEach(btn => btn.classList.remove('selected'));
+                // Add 'selected' class to the clicked button
+                this.classList.add('selected');
+                // Set the level based on the clicked button
+                level = parseInt(this.getAttribute('data-level'));
+                // Start the game
+                difficultyDiv.classList.add('hidden');
+                gameDiv.classList.remove('hidden');
+                startGame();
+            });
         });
 
         // Function to start the game
@@ -267,33 +506,57 @@
             let feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback';
 
+            // Correct Position Container
+            let correctPositionContainer = document.createElement('div');
+            correctPositionContainer.className = 'position-container';
+
             let rightPositionLabel = document.createElement('label');
-            rightPositionLabel.textContent = 'Enter number of digits in the correct position: ';
-            let rightPositionInput = document.createElement('input');
-            rightPositionInput.type = 'number';
-            rightPositionInput.min = 0;
-            rightPositionInput.max = 4;
-            rightPositionInput.value = 0;
+            rightPositionLabel.textContent = 'Digits in the correct position:';
+
+            let rightPositionButtons = document.createElement('div');
+            rightPositionButtons.className = 'position-buttons';
+
+            // Wrong Position Container
+            let wrongPositionContainer = document.createElement('div');
+            wrongPositionContainer.className = 'position-container';
 
             let wrongPositionLabel = document.createElement('label');
-            wrongPositionLabel.textContent = 'Enter number of correct digits in the wrong position: ';
-            let wrongPositionInput = document.createElement('input');
-            wrongPositionInput.type = 'number';
-            wrongPositionInput.min = 0;
-            wrongPositionInput.max = 4;
-            wrongPositionInput.value = 0;
+            wrongPositionLabel.textContent = 'Correct digits in the wrong position:';
+
+            let wrongPositionButtons = document.createElement('div');
+            wrongPositionButtons.className = 'position-buttons';
+
+            // Create buttons for numbers 0 to 4
+            for (let i = 0; i <= 4; i++) {
+                let btnRight = document.createElement('button');
+                btnRight.textContent = i;
+                btnRight.dataset.value = i;
+                rightPositionButtons.appendChild(btnRight);
+
+                let btnWrong = document.createElement('button');
+                btnWrong.textContent = i;
+                btnWrong.dataset.value = i;
+                wrongPositionButtons.appendChild(btnWrong);
+            }
 
             let submitFeedbackBtn = document.createElement('button');
             submitFeedbackBtn.textContent = 'Submit Feedback';
+            submitFeedbackBtn.style.backgroundColor = 'var(--primary-color)';
+            submitFeedbackBtn.style.color = '#ffffff';
 
             let logDiv = document.createElement('div');
             logDiv.className = 'log';
             logDiv.id = 'logDiv';
 
-            feedbackDiv.appendChild(rightPositionLabel);
-            feedbackDiv.appendChild(rightPositionInput);
-            feedbackDiv.appendChild(wrongPositionLabel);
-            feedbackDiv.appendChild(wrongPositionInput);
+            // Assemble the containers
+            correctPositionContainer.appendChild(rightPositionLabel);
+            correctPositionContainer.appendChild(rightPositionButtons);
+
+            wrongPositionContainer.appendChild(wrongPositionLabel);
+            wrongPositionContainer.appendChild(wrongPositionButtons);
+
+            feedbackDiv.appendChild(correctPositionContainer);
+            feedbackDiv.appendChild(wrongPositionContainer);
             feedbackDiv.appendChild(submitFeedbackBtn);
 
             gameDiv.appendChild(computerGuessDiv);
@@ -301,6 +564,32 @@
             gameDiv.appendChild(logDiv);
 
             let guess = null;
+            let rightPosition = null;
+            let wrongPosition = null;
+
+            // Function to handle button selection
+            function selectPosition(buttonGroup, value) {
+                // Remove 'selected' class from all buttons in the group
+                buttonGroup.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+                // Add 'selected' class to the clicked button
+                buttonGroup.querySelector(`button[data-value="${value}"]`).classList.add('selected');
+            }
+
+            // Event listeners for right position buttons
+            rightPositionButtons.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', function() {
+                    rightPosition = parseInt(this.dataset.value);
+                    selectPosition(rightPositionButtons, rightPosition);
+                });
+            });
+
+            // Event listeners for wrong position buttons
+            wrongPositionButtons.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', function() {
+                    wrongPosition = parseInt(this.dataset.value);
+                    selectPosition(wrongPositionButtons, wrongPosition);
+                });
+            });
 
             function performComputerMove() {
                 if (combinations.length === 0) {
@@ -311,18 +600,23 @@
                 guess = selectRandomCombination(combinations);
                 // Display computer's guess
                 computerGuessDiv.textContent = 'Computer\'s guess: ' + guess.join('');
-                rightPositionInput.value = 0;
-                wrongPositionInput.value = 0;
+                rightPosition = null;
+                wrongPosition = null;
+                // Clear selected buttons
+                rightPositionButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
+                wrongPositionButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('selected'));
             }
 
             submitFeedbackBtn.addEventListener('click', function() {
                 if (gameOver) return;
 
-                let rightPosition = parseInt(rightPositionInput.value);
-                let wrongPosition = parseInt(wrongPositionInput.value);
+                if (rightPosition === null || wrongPosition === null) {
+                    alert('Please select both numbers.');
+                    return;
+                }
 
-                if (isNaN(rightPosition) || isNaN(wrongPosition) || rightPosition < 0 || wrongPosition < 0 || rightPosition + wrongPosition > 4) {
-                    alert('Invalid input. Please enter valid numbers.');
+                if (rightPosition + wrongPosition > 4) {
+                    alert('The total of correct positions and wrong positions cannot exceed 4.');
                     return;
                 }
 
@@ -340,8 +634,6 @@
                     alert('The computer has guessed your combination!');
                     gameOver = true;
 
-                    rightPositionInput.disabled = true;
-                    wrongPositionInput.disabled = true;
                     submitFeedbackBtn.disabled = true;
 
                     let playAgainBtn = document.createElement('button');
@@ -380,6 +672,8 @@
 
             let submitGuessBtn = document.createElement('button');
             submitGuessBtn.textContent = 'Submit Guess';
+            submitGuessBtn.style.backgroundColor = 'var(--primary-color)';
+            submitGuessBtn.style.color = '#ffffff';
 
             let feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback';
@@ -419,11 +713,11 @@
                 let score = calculateScore(playerGuess, secretCode);
 
                 // Provide feedback to the player
-                feedbackDiv.textContent = 'Digits in the right position: ' + score.right_position + ', Correct digits in wrong position: ' + score.wrong_position;
+                feedbackDiv.textContent = 'Digits in the right position: ' + score.right_position + ', Digits in wrong position: ' + score.wrong_position;
 
                 // Log the guess and feedback
                 let logEntry = document.createElement('p');
-                logEntry.textContent = 'Guess: ' + playerGuess.join('') + ' | Correct position: ' + score.right_position + ' | Correct digit, wrong position: ' + score.wrong_position;
+                logEntry.textContent = 'Guess: ' + playerGuess.join('') + ' | Correct position: ' + score.right_position + ' | Wrong position: ' + score.wrong_position;
                 logDiv.appendChild(logEntry);
 
                 if (score.right_position === 4) {
@@ -450,12 +744,15 @@
         // Function to reset the game
         function resetGame() {
             // Reset game variables
-            gameMode = null;
+            gameMode = gameModeToggle.checked ? 2 : 1;
             level = 4;
             combinations = [];
             secretCode = [];
             allCombinations = [];
             gameOver = false;
+
+            // Remove 'selected' class from all difficulty buttons
+            difficultyButtons.forEach(btn => btn.classList.remove('selected'));
 
             // Show the menu
             menuDiv.classList.remove('hidden');
